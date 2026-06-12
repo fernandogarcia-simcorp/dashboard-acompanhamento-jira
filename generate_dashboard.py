@@ -146,6 +146,10 @@ section{padding:44px 0}
 .statbars .sb .tr span{display:block;height:100%}
 .statbars .sb .n{font-family:var(--mono);font-weight:700;text-align:right;color:var(--navy)}
 .sub-eyebrow{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-400);margin-bottom:10px}
+.sup-cols.cf-row{grid-template-columns:1fr 1fr}
+.cf-divider{display:flex;align-items:center;gap:10px;margin:24px 0 4px}
+.cf-divider .lbl{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green-deep)}
+.cf-divider .ln{flex:1;height:1px;background:var(--border)}
 /* ---------- KPIs ---------- */
 .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
 .kpi{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--c);border-radius:8px;
@@ -467,6 +471,7 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
 <script>
 const DATA = __DATA__;
 const BASE = DATA.baseUrl;
+const SUP = DATA.support;
 const $ = (s)=>document.querySelector(s);
 const el = (t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
 const esc = (s)=>String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m]));
@@ -494,7 +499,6 @@ $('#footTotal').textContent=(DATA.total+(SUP?SUP.projects.reduce((a,p)=>a+p.tota
   $('#kpis').appendChild(c);});
 
 // ---- portfolio (SCUPOKR + projetos de suporte) ----
-const SUP = DATA.support;
 function miniStrip(done,prog,todo,total){
   const segs=[[done,COL.done],[prog,COL.prog],[todo,COL.todo]].filter(s=>s[0]>0);
   return segs.map(([v,c])=>`<span style="width:${v/total*100}%;background:${c}"></span>`).join('')||'<span style="width:100%;background:var(--gray-50)"></span>';
@@ -733,6 +737,16 @@ $('#notes').innerHTML=`<b>Leitura da semana</b>
 <div style="margin-top:8px;font-size:11.5px">Nota metodológica: o projeto não preenche data de resolução; conclusão por semana usa a última movimentação como aproximação.</div>`;
 
 // ---- projetos de suporte (uma seção filtrável por projeto) ----
+function customBars(counts, host){
+  const ent=Object.entries(counts||{});
+  const top=ent.slice(0,8);
+  const rest=ent.slice(8).reduce((a,[k,v])=>a+v,0);
+  if(rest) top.push(['Outros', rest]);
+  const mx=Math.max(...top.map(e=>e[1]),1);
+  top.forEach(([k,v])=>{const r=el('div','sb');
+    r.innerHTML=`<span class="nm" title="${esc(k)}">${esc(k)}</span><div class="tr"><span style="width:${Math.max(v/mx*100,3)}%;background:var(--navy)"></span></div><span class="n">${v}</span>`;
+    host.appendChild(r);});
+}
 if(SUP){
   const STATCAT_COL={done:COL.done,indeterminate:COL.prog,'new':COL.todo};
   SUP.projects.forEach(p=>{
@@ -751,8 +765,15 @@ if(SUP){
           <div><div class="sub-eyebrow">Por tipo</div><div class="minib ty-host"></div>
             <div class="sub-eyebrow" style="margin-top:18px">Responsáveis</div><div class="asg as-host"></div></div>
         </div>
+        ${(p.custom&&p.custom.length)?`<div class="cf-divider"><span class="lbl">Campos do projeto</span><span class="ln"></span></div>
+        <div class="sup-cols cf-row"></div>`:''}
       </div>`;
     $('#supportSections').appendChild(sec);
+    // campos customizados do projeto (Cliente/Tipo de Sistema | Organização/Categoria)
+    const cfRow=sec.querySelector('.cf-row');
+    if(cfRow) (p.custom||[]).forEach(cf=>{const col=el('div');
+      col.innerHTML=`<div class="sub-eyebrow">${esc(cf.label)}</div><div class="statbars cf-host"></div>`;
+      cfRow.appendChild(col);customBars(cf.counts, col.querySelector('.cf-host'));});
     const stEnt=Object.entries(p.byStatus).sort((a,b)=>b[1]-a[1]);const stMax=Math.max(...stEnt.map(e=>e[1]));
     const sbHost=sec.querySelector('.sb-host');
     stEnt.forEach(([s,v])=>{const col=STATCAT_COL[p.statusCat[s]]||COL.todo;const r=el('div','sb');

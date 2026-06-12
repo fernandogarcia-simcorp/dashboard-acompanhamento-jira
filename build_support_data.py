@@ -17,6 +17,28 @@ SRC = {
     'SDS': (os.path.join(OUT, 'raw', 'sds.json'), 'Suporte Sim>Consultas'),
 }
 
+# campos customizados por projeto: (rotulo, fieldId, tipo) | tipo: 'select' = {value} | 'org' = [{name}]
+CUSTOM = {
+    'SDE': [('Cliente', 'customfield_11704', 'select'), ('Tipo de Sistema', 'customfield_11400', 'select')],
+    'SDS': [('Organização', 'customfield_10804', 'org'), ('Categoria', 'customfield_11702', 'select')],
+}
+
+def custom_summaries(nodes, key):
+    out = []
+    for label, fid, ftype in CUSTOM.get(key, []):
+        cnt = collections.Counter()
+        for n in nodes:
+            v = n['fields'].get(fid)
+            if ftype == 'org':
+                if v:
+                    for o in v: cnt[o.get('name') or 'Não informado'] += 1
+                else:
+                    cnt['Não informado'] += 1
+            else:  # select
+                cnt[v['value'] if v else 'Não informado'] += 1
+        out.append({'label': label, 'counts': dict(cnt.most_common())})
+    return out
+
 def dparse(s):
     return datetime.date(int(s[0:4]), int(s[5:7]), int(s[8:10])) if s else None
 def week_start(dt):
@@ -67,6 +89,7 @@ for key, (path, name) in SRC.items():
         'pct': round(by_cat.get('done', 0) / len(issues) * 100) if issues else 0,
         'byStatus': dict(by_status), 'statusCat': {i['status']: i['cat'] for i in issues}, 'byType': dict(by_type),
         'byPriority': dict(by_prio), 'byAssignee': dict(by_asg),
+        'custom': custom_summaries(nodes, key),
         'weekly': weekly, 'issues': issues,
     })
     print(f"{key}: {len(issues)} no periodo | done {by_cat.get('done',0)} prog {by_cat.get('indeterminate',0)} todo {by_cat.get('new',0)}")

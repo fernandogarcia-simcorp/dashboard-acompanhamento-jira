@@ -63,7 +63,10 @@ def save_raw(name, nodes):
     print(f'  raw/{name}: {len(nodes)} issues')
 
 SCUPOKR_FIELDS = ['summary','issuetype','status','priority','assignee','created','updated','resolutiondate','parent','labels','duedate']
-SUP_FIELDS = ['summary','issuetype','status','priority','assignee','created','updated']
+# inclui campos customizados de SDE (Cliente 11704, Tipo de Sistema 11400) e
+# SDS (Organização 10804, Categoria 11702). Campos ausentes num projeto voltam nulos.
+SUP_FIELDS = ['summary','issuetype','status','priority','assignee','created','updated',
+              'customfield_11704','customfield_11400','customfield_10804','customfield_11702']
 
 print('1) Jira REST ...')
 save_raw('scupokr.json', jira_search('project = SCUPOKR ORDER BY created ASC', SCUPOKR_FIELDS))
