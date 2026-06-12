@@ -25,7 +25,7 @@ os.makedirs(RAW, exist_ok=True)
 JIRA_SITE = os.environ.get('JIRA_SITE', 'simconsultas.atlassian.net')
 JIRA_EMAIL = os.environ.get('JIRA_EMAIL')
 JIRA_API_TOKEN = os.environ.get('JIRA_API_TOKEN')
-PERIOD = os.environ.get('DASH_PERIOD_START', '2026-04-01')
+PERIOD = os.environ.get('DASH_PERIOD_START') or '2026-04-01'  # trata env var vazia (GH Actions)
 
 def die(m): print('ERRO:', m); sys.exit(1)
 if not (JIRA_EMAIL and JIRA_API_TOKEN):

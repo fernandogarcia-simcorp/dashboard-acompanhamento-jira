@@ -3,7 +3,7 @@
 Estilo: SIMCORP Design System (Raleway, navy + verde lima, sem emoji)."""
 import json, os, datetime
 
-OUT = r'C:\Desenvolvimento\ProjetoSCUPOKR'
+OUT = os.path.dirname(os.path.abspath(__file__))
 data = json.load(open(os.path.join(OUT,'dashboard_data.json'), encoding='utf-8'))
 data_js = json.dumps(data, ensure_ascii=False)
 

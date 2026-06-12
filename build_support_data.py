@@ -8,7 +8,7 @@ Snapshot: para atualizar, re-puxe via MCP e regenere este arquivo.
 import json, os, collections, datetime
 
 OUT = os.path.dirname(os.path.abspath(__file__))
-PERIOD_START = os.environ.get('DASH_PERIOD_START', '2026-04-01')
+PERIOD_START = os.environ.get('DASH_PERIOD_START') or '2026-04-01'  # trata env var vazia (GH Actions)
 TODAY = datetime.date.today()
 
 # arquivos de dados (gerados por refresh_all.py, ou snapshot do MCP em raw/)
