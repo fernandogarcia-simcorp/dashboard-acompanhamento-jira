@@ -1,0 +1,14 @@
+version: 1
+frontend:
+  phases:
+    build:
+      commands:
+        - echo "Site estatico - dashboard.html/index.html ja versionados (atualizados pelo GitHub Actions)."
+  artifacts:
+    baseDirectory: /
+    files:
+      - index.html
+      - dashboard.html
+      - logo-simcorp-full.png
+  cache:
+    paths: []

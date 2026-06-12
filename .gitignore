@@ -1,0 +1,28 @@
+# Dados intermediarios (regenerados pelo refresh_all.py no CI)
+raw/
+dashboard_data.json
+support_data.json
+tempo_hours.json
+tempo_worklogs_raw.json
+email_preview.html
+
+# Segredos - NUNCA commitar
+.env
+*.token
+
+# Reference design system (pesado; nao necessario para o deploy)
+SIMCORP Design System/
+*.zip
+extract-issues.ps1
+
+# Screenshots / artefatos de validacao
+sc-*.png
+dash-*.png
+email*.png
+.playwright-mcp/
+
+# Python
+__pycache__/
+*.pyc
+
+# Nota: index.html, dashboard.html e logo-simcorp-full.png SAO versionados (deploy inicial)

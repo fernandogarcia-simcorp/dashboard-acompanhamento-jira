@@ -1,0 +1,57 @@
+name: Dashboard Semanal (refresh + e-mail)
+
+on:
+  schedule:
+    # Segunda-feira 08:30 America/Sao_Paulo == 11:30 UTC
+    - cron: "30 11 * * 1"
+  workflow_dispatch: {}   # permite disparo manual pela aba Actions
+
+permissions:
+  contents: write          # para commitar o dashboard atualizado
+
+concurrency:
+  group: dashboard-weekly
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Atualizar dados (Jira + Tempo) e regenerar dashboard
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          TEMPO_TOKEN: ${{ secrets.TEMPO_TOKEN }}
+          DASH_PERIOD_START: ${{ vars.DASH_PERIOD_START }}
+        run: python refresh_all.py
+
+      - name: Commitar dashboard atualizado (dispara deploy do Amplify)
+        run: |
+          git config user.name "dashboard-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html dashboard.html
+          if git diff --cached --quiet; then
+            echo "Sem mudancas no dashboard."
+          else
+            git commit -m "chore: refresh semanal do dashboard [skip ci]"
+            git push
+          fi
+
+      - name: Enviar e-mail semanal
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
+        run: python send_email.py
