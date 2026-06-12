@@ -16,7 +16,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SCUPDATA · OKR — Status Report Semanal</title>
+<title>Projetos Ativos — Status Report Semanal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,600&display=swap" rel="stylesheet">
@@ -98,6 +98,17 @@ section{padding:44px 0}
 .pill.prog{background:#FCEBD9;color:var(--warn-deep)} .pill.prog .d{background:var(--warn)}
 .pill.todo{background:#EFF1EF;color:var(--gray-700)} .pill.todo .d{background:var(--gray-400)}
 
+/* ---------- filter bar ---------- */
+.filterbar{position:sticky;top:0;z-index:60;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--sh-xs)}
+.filterbar .wrap{display:flex;align-items:center;gap:14px;padding:11px 32px;max-width:1200px}
+.fb-label{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--gray-400);flex-shrink:0}
+.fb-btns{display:flex;gap:8px;flex-wrap:wrap}
+.fbtn{font-family:var(--font);font-size:12.5px;font-weight:700;letter-spacing:.02em;color:var(--navy);background:var(--bg);
+  border:1px solid var(--border);border-radius:999px;padding:7px 16px;cursor:pointer;transition:all .16s cubic-bezier(.22,1,.36,1)}
+.fbtn:hover{border-color:var(--navy-700);color:var(--navy-700)}
+.fbtn.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.fbtn .c{opacity:.55;font-weight:600;margin-left:6px;font-family:var(--mono);font-size:11px}
+.fbtn.active .c{opacity:.8}
 /* ---------- portfolio ---------- */
 .portfolio{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .pcard{background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--c);border-radius:8px;padding:22px;box-shadow:var(--sh-sm)}
@@ -289,10 +300,10 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
       <span class="logo-plate"><img src="logo-simcorp-full.png" alt="SIMCORP"></span>
       <span class="env">JIRA · simconsultas.atlassian.net</span>
     </div>
-    <div class="h-eyebrow">Status Report Semanal</div>
-    <h1 class="h-title">SCUP<b>DATA</b> · OKR</h1>
+    <div class="h-eyebrow">SIMCORP · Status Report Semanal</div>
+    <h1 class="h-title">Projetos <b>Ativos</b></h1>
     <div class="h-meta">
-      <span class="h-chip"><span class="d"></span> Projeto SCUPOKR</span>
+      <span class="h-chip"><span class="d"></span> <span id="hChipProjects">projetos ativos</span></span>
       <span>Emitido em <b id="genDate"></b></span>
       <span>Semana de referência <b id="weekRef"></b></span>
     </div>
@@ -300,17 +311,39 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
   </div>
 </div>
 
+<div class="filterbar">
+  <div class="wrap">
+    <span class="fb-label">Projeto</span>
+    <div class="fb-btns" id="filterBtns"></div>
+  </div>
+</div>
+
 <div class="wrap">
 
 <!-- 00 PORTFOLIO -->
-<section id="portfolioSec">
+<section id="portfolioSec" data-view="overview">
   <div class="sec-head"><div class="l"><div class="eyebrow">Portfólio</div><h2>Projetos Acompanhados</h2></div><span class="sec-num" id="portfolioNum">3 PROJETOS</span></div>
   <div class="portfolio" id="portfolio"></div>
   <p style="font-size:11.5px;color:var(--gray-400);margin-top:12px" id="portfolioNote"></p>
 </section>
 
+<!-- CONSOLIDADO (overview) -->
+<section data-view="overview">
+  <div class="sec-head"><div class="l"><div class="eyebrow">Consolidado</div><h2>Visão Geral</h2></div><span class="sec-num">TODOS OS PROJETOS</span></div>
+  <div class="kpis" id="ovKpis"></div>
+  <div class="panel" style="margin-top:18px">
+    <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Carga por responsável — todos os projetos</h3>
+    <div class="legend" style="margin:-6px 0 16px">
+      <span><i style="background:var(--green)"></i>Concluído</span>
+      <span><i style="background:var(--warn)"></i>Em andamento</span>
+      <span><i style="background:var(--gray-400)"></i>A fazer / backlog</span>
+    </div>
+    <div class="asg" id="ovAssignees"></div>
+  </div>
+</section>
+
 <!-- 01 PANORAMA -->
-<section>
+<section data-view="SCUPOKR">
   <div class="sec-head"><div class="l"><div class="eyebrow">SCUPDATA · OKR — visão executiva</div><h2>Panorama Geral</h2></div><span class="sec-num">01</span></div>
   <div class="kpis" id="kpis"></div>
   <div class="hero-prog">
@@ -321,7 +354,7 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
 </section>
 
 <!-- 02 EPICS -->
-<section>
+<section data-view="SCUPOKR">
   <div class="sec-head"><div class="l"><div class="eyebrow">Frentes de trabalho</div><h2>Visão por Iniciativa</h2></div><span class="sec-num">02 · EPICS</span></div>
   <div class="epic-sub"><span class="lbl">Em andamento</span><span class="ct" id="epicActiveCt"></span><span class="ln"></span></div>
   <div class="epic-grid" id="epicActive"></div>
@@ -335,7 +368,7 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
 </section>
 
 <!-- 03 RITMO -->
-<section>
+<section data-view="SCUPOKR">
   <div class="sec-head"><div class="l"><div class="eyebrow">Throughput</div><h2>Ritmo de Entrega</h2></div><span class="sec-num">03</span></div>
   <div class="cols">
     <div class="panel">
@@ -358,7 +391,7 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
 </section>
 
 <!-- 04 DISTRIBUICAO -->
-<section>
+<section data-view="SCUPOKR">
   <div class="sec-head"><div class="l"><div class="eyebrow">Equipe & escopo</div><h2>Distribuição</h2></div><span class="sec-num">04</span></div>
   <div class="cols">
     <div class="panel">
@@ -382,7 +415,7 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
 </section>
 
 <!-- 05 HORAS -->
-<section>
+<section data-view="SCUPOKR">
   <div class="sec-head"><div class="l"><div class="eyebrow">Time tracking · Tempo</div><h2>Horas Apontadas</h2></div><span class="sec-num">05</span></div>
   <div class="cols">
     <div class="panel">
@@ -404,7 +437,7 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
 </section>
 
 <!-- 06 SEMANA -->
-<section>
+<section data-view="SCUPOKR">
   <div class="sec-head"><div class="l"><div class="eyebrow">Destaques</div><h2>Relatório da Semana</h2></div><span class="sec-num">06</span></div>
   <div class="rep-grid">
     <div class="panel"><h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Concluído nesta semana <span class="count-badge" id="cntDone"></span></h3><div id="weekDone"></div></div>
@@ -416,12 +449,8 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
   </div>
 </section>
 
-<!-- 07 SUPORTE -->
-<section id="supportSec">
-  <div class="sec-head"><div class="l"><div class="eyebrow">Suporte · no período</div><h2>Projetos de Suporte</h2></div><span class="sec-num" id="supportNum">07</span></div>
-  <p style="font-size:12.5px;color:var(--gray-700);margin:-12px 0 22px" id="supportIntro"></p>
-  <div id="supportBody"></div>
-</section>
+<!-- SUPORTE (uma seção por projeto, gerada via JS) -->
+<div id="supportSections"></div>
 
 </div>
 
@@ -452,7 +481,7 @@ $('#genDate').textContent='__GEN__';
 function fmtWeek(iso){const d=new Date(iso+'T00:00:00');const e=new Date(d);e.setDate(e.getDate()+6);
   return `${d.getDate()} ${MES[d.getMonth()]} – ${e.getDate()} ${MES[e.getMonth()]}`;}
 $('#weekRef').textContent=fmtWeek(DATA.curWeek);
-$('#footTotal').textContent=DATA.total+' issues · '+DATA.epics.length+' iniciativas · '+DATA.pct+'% concluído';
+$('#footTotal').textContent=(DATA.total+(SUP?SUP.projects.reduce((a,p)=>a+p.total,0):0))+' issues · '+(1+(SUP?SUP.projects.length:0))+' projetos ativos';
 
 // ---- KPIs ----
 [
@@ -484,8 +513,52 @@ pcards.forEach(p=>{const c=el('div','pcard');c.style.setProperty('--c',p.c);
     <div class="pfoot"><span>${p.foot}</span><span>${p.scope}</span></div>`;
   $('#portfolio').appendChild(c);});
 $('#portfolioNote').textContent = SUP
-  ? `SCUPDATA · OKR mostrado em detalhe abaixo (visão completa do projeto). SDE e SDS são projetos de suporte, considerados apenas no período do dashboard (desde ${SUP.period}, criados ou movimentados).`
-  : 'SCUPDATA · OKR — visão completa do projeto abaixo.';
+  ? `Use o filtro acima para abrir o detalhe de cada projeto. SCUPOKR (OKR) é mostrado completo; SDE e SDS são projetos de suporte, considerados apenas no período (desde ${SUP.period}, criados ou movimentados).`
+  : 'Use o filtro acima para abrir o detalhe do projeto.';
+
+// ---- chip de projetos ----
+const projCount = 1 + (SUP ? SUP.projects.length : 0);
+$('#hChipProjects').textContent = projCount + ' projetos ativos';
+
+// ---- consolidado: KPIs somados ----
+let tAll=DATA.total, dAll=DATA.done, pAll=DATA.inprog, oAll=DATA.todo;
+if(SUP) SUP.projects.forEach(p=>{tAll+=p.total;dAll+=p.done;pAll+=p.inprog;oAll+=p.todo;});
+const pctAll = tAll? Math.round(dAll/tAll*100):0;
+[
+ {lab:'Issues (todos)',num:tAll,meta:projCount+' projetos',c:'var(--navy)'},
+ {lab:'Concluídas',num:dAll,meta:pctAll+'% do total',c:'var(--green)'},
+ {lab:'Em andamento',num:pAll,meta:'progresso + validação',c:'var(--warn)'},
+ {lab:'A fazer / backlog',num:oAll,meta:'pendentes',c:'var(--gray-400)'},
+].forEach(k=>{const c=el('div','kpi');c.style.setProperty('--c',k.c);
+  c.innerHTML=`<div class="lab">${k.lab}</div><div class="num">${k.num}</div><div class="meta">${k.meta}</div>`;
+  $('#ovKpis').appendChild(c);});
+
+// ---- consolidado: carga por responsavel (todos os projetos) ----
+const allIssues=[...(DATA.issues||[])];
+if(SUP) SUP.projects.forEach(p=>(p.issues||[]).forEach(i=>allIssues.push(i)));
+const ovBd={};
+allIssues.forEach(i=>{const a=i.assignee||'Não atribuído';
+  const o=ovBd[a]||(ovBd[a]={done:0,prog:0,todo:0,total:0});
+  if(i.cat==='done')o.done++; else if(i.cat==='indeterminate')o.prog++; else o.todo++; o.total++;});
+const ovEnt=Object.entries(ovBd).sort((a,b)=>b[1].total-a[1].total);
+const ovMax=Math.max(...ovEnt.map(([n,o])=>o.total),1);
+ovEnt.forEach(([nm,o])=>{const c=el('div','a');
+  const segs=[[o.done,COL.done],[o.prog,COL.prog],[o.todo,COL.todo]];
+  const inner=segs.map(([v,col])=>v?`<span style="width:${v/ovMax*100}%;background:${col}"></span>`:'').join('');
+  c.innerHTML=`<div class="nm">${esc(nm)}</div><div class="track stacked">${inner}</div><div class="n">${o.total}</div>`;
+  $('#ovAssignees').appendChild(c);});
+
+// ---- barra de filtro ----
+const FILTERS=[{f:'overview',label:'Visão geral',count:tAll},{f:'SCUPOKR',label:'SCUPOKR',count:DATA.total}];
+if(SUP) SUP.projects.forEach(p=>FILTERS.push({f:p.key,label:p.key,count:p.total}));
+FILTERS.forEach(x=>{const b=el('button','fbtn');b.dataset.filter=x.f;
+  b.innerHTML=`${esc(x.label)}<span class="c">${x.count}</span>`;
+  b.onclick=()=>applyFilter(x.f);$('#filterBtns').appendChild(b);});
+function applyFilter(f){
+  document.querySelectorAll('[data-view]').forEach(elm=>{
+    elm.style.display = elm.getAttribute('data-view').split(' ').includes(f) ? '' : 'none';});
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active', b.dataset.filter===f));
+}
 
 // ---- hero progress ----
 $('#heroPct').textContent=DATA.pct+'%';
@@ -582,7 +655,7 @@ if(AL.length){const crit=AL.filter(a=>a.daysIdle>=14).length;
   $('#alertBanner').innerHTML=`<div class="alert-banner">
     <span class="ab-ic"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
     <span class="ab-n">${AL.length}</span>
-    <span class="ab-tx"><b>atividade(s) em andamento sem horas lançadas.</b><br>
+    <span class="ab-tx"><b>atividade(s) do SCUPOKR em andamento sem horas lançadas.</b><br>
     ${crit?`${crit} parada(s) há 14+ dias sem movimentação. `:''}Lance as horas no Tempo para manter o acompanhamento fiel.</span>
     <a class="ab-cta" href="#alertPanelWrap">Ver lista</a></div>`;}
 $('#alertCount').textContent=AL.length;
@@ -659,42 +732,43 @@ $('#notes').innerHTML=`<b>Leitura da semana</b>
 </ul>
 <div style="margin-top:8px;font-size:11.5px">Nota metodológica: o projeto não preenche data de resolução; conclusão por semana usa a última movimentação como aproximação.</div>`;
 
-// ---- projetos de suporte (SDE / SDS) ----
+// ---- projetos de suporte (uma seção filtrável por projeto) ----
 if(SUP){
-  $('#supportIntro').innerHTML=`Itens dos projetos de suporte <b>${SUP.projects.map(p=>p.key).join(' e ')}</b> criados ou movimentados no período do dashboard (desde <b>${SUP.period}</b>). Visão operacional — sem épicos/OKR.`;
   const STATCAT_COL={done:COL.done,indeterminate:COL.prog,'new':COL.todo};
   SUP.projects.forEach(p=>{
-    const wrap=el('div','sup-proj panel');
-    wrap.innerHTML=`<div class="sup-head"><span class="sk">${p.key}</span><span class="sn">${esc(p.name)}</span><span class="ln"></span></div>
-      <div class="sup-kpis">
-        <div class="sup-kpi"><div class="n">${p.total}</div><div class="l">No período</div></div>
-        <div class="sup-kpi"><div class="n">${p.created}</div><div class="l">Criados</div></div>
-        <div class="sup-kpi"><div class="n">${p.moved}</div><div class="l">Movimentados</div></div>
-        <div class="sup-kpi"><div class="n" style="color:var(--green-deep)">${p.done}</div><div class="l">Concluídos</div></div>
-        <div class="sup-kpi"><div class="n" style="color:var(--warn-deep)">${p.inprog+p.todo}</div><div class="l">Em aberto</div></div>
-      </div>
-      <div class="sup-cols">
-        <div><div class="sub-eyebrow">Por status</div><div class="statbars sb-host"></div></div>
-        <div><div class="sub-eyebrow">Por tipo</div><div class="minib ty-host"></div>
-          <div class="sub-eyebrow" style="margin-top:18px">Responsáveis</div><div class="asg as-host"></div></div>
+    const sec=el('section');sec.setAttribute('data-view',p.key);
+    sec.innerHTML=`<div class="sec-head"><div class="l"><div class="eyebrow">Suporte · no período (desde ${SUP.period})</div><h2>${esc(p.name)}</h2></div><span class="sec-num">${p.key}</span></div>
+      <div class="panel sup-proj">
+        <div class="sup-kpis">
+          <div class="sup-kpi"><div class="n">${p.total}</div><div class="l">No período</div></div>
+          <div class="sup-kpi"><div class="n">${p.created}</div><div class="l">Criados</div></div>
+          <div class="sup-kpi"><div class="n">${p.moved}</div><div class="l">Movimentados</div></div>
+          <div class="sup-kpi"><div class="n" style="color:var(--green-deep)">${p.done}</div><div class="l">Concluídos</div></div>
+          <div class="sup-kpi"><div class="n" style="color:var(--warn-deep)">${p.inprog+p.todo}</div><div class="l">Em aberto</div></div>
+        </div>
+        <div class="sup-cols">
+          <div><div class="sub-eyebrow">Por status</div><div class="statbars sb-host"></div></div>
+          <div><div class="sub-eyebrow">Por tipo</div><div class="minib ty-host"></div>
+            <div class="sub-eyebrow" style="margin-top:18px">Responsáveis</div><div class="asg as-host"></div></div>
+        </div>
       </div>`;
-    $('#supportBody').appendChild(wrap);
-    // status bars (coloridos por categoria)
+    $('#supportSections').appendChild(sec);
     const stEnt=Object.entries(p.byStatus).sort((a,b)=>b[1]-a[1]);const stMax=Math.max(...stEnt.map(e=>e[1]));
-    const sbHost=wrap.querySelector('.sb-host');
+    const sbHost=sec.querySelector('.sb-host');
     stEnt.forEach(([s,v])=>{const col=STATCAT_COL[p.statusCat[s]]||COL.todo;const r=el('div','sb');
       r.innerHTML=`<span class="nm" title="${esc(s)}">${esc(s)}</span><div class="tr"><span style="width:${Math.max(v/stMax*100,3)}%;background:${col}"></span></div><span class="n">${v}</span>`;
       sbHost.appendChild(r);});
-    // tipos
-    miniBars(p.byType,wrap.querySelector('.ty-host'),[COL.navy,'#0079C1','#6c8f7f','#9bb0a5']);
-    // responsaveis
+    miniBars(p.byType,sec.querySelector('.ty-host'),[COL.navy,'#0079C1','#6c8f7f','#9bb0a5']);
     const aEnt=Object.entries(p.byAssignee).sort((a,b)=>b[1]-a[1]);const aMax=Math.max(...aEnt.map(e=>e[1]));
-    const asHost=wrap.querySelector('.as-host');
+    const asHost=sec.querySelector('.as-host');
     aEnt.forEach(([nm,v])=>{const c=el('div','a');
       c.innerHTML=`<div class="nm">${esc(nm)}</div><div class="track"><span style="width:${v/aMax*100}%"></span></div><div class="n">${v}</div>`;
       asHost.appendChild(c);});
   });
-} else { const ss=$('#supportSec'); if(ss) ss.style.display='none'; }
+}
+
+// estado inicial do filtro: Visão geral
+applyFilter('overview');
 </script>
 </body>
 </html>"""

@@ -76,7 +76,7 @@ html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport
 <table align="center" width="640" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid #E4E7E5">
   <tr><td style="background:#023859;padding:26px 30px">
     <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;color:{GREEN};font-weight:bold">STATUS REPORT SEMANAL</div>
-    <div style="font-family:Arial,sans-serif;font-size:26px;color:#fff;font-weight:bold;margin-top:6px">SCUP<span style="color:{GREEN}">DATA</span> · OKR</div>
+    <div style="font-family:Arial,sans-serif;font-size:26px;color:#fff;font-weight:bold;margin-top:6px">Projetos <span style="color:{GREEN}">Ativos</span></div>
     <div style="font-family:Arial,sans-serif;font-size:12px;color:#cfe0d6;margin-top:6px">Emitido em {gen_str}</div>
   </td></tr>
   <tr><td style="padding:24px 30px">
@@ -112,7 +112,7 @@ html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport
 </table>
 </body></html>"""
 
-subject = f'SCUPDATA · OKR — Status Report Semanal ({g.day:02d}/{g.month:02d}) · {d["pct"]}% concluído · {len(alerts)} alertas'
+subject = f'Status Report Semanal · Projetos Ativos ({g.day:02d}/{g.month:02d}) · {len(alerts)} alertas'
 
 if DRY:
     open(os.path.join(ROOT, 'email_preview.html'), 'w', encoding='utf-8').write(html)
