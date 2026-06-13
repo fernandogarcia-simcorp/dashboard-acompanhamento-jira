@@ -223,6 +223,21 @@ ov_logs.sort(key=lambda x:(x.get('started') or '', x['seconds']), reverse=True) 
 overview_hours = {'totalSec':sum(x['seconds'] for x in ov_logs),
                   'byPerson':dict(ov_byperson.most_common()), 'logs':ov_logs}
 
+# ---- lista unificada de issues (todos os projetos) p/ o motor de periodo no navegador ----
+all_issues = []
+for i in issues:  # SCUPOKR
+    all_issues.append({'project':'SCUPOKR','key':i['key'],'summary':i['summary'],'type':i['typeNorm'],
+        'status':i['status'],'cat':i['cat'],'priority':i['priority'],'assignee':i['assignee'],
+        'created':i['created'],'updated':i['updated'],'resolved':i.get('resolved',''),
+        'logged':i.get('logged',0),'parent':i.get('parent'),'isEpic':i['typeNorm']=='Epico','custom':{}})
+if support:
+    for p in support['projects']:
+        for i in p['issues']:
+            all_issues.append({'project':p['key'],'key':i['key'],'summary':i['summary'],'type':i['type'],
+                'status':i['status'],'cat':i['cat'],'priority':i['priority'],'assignee':i['assignee'],
+                'created':i['created'],'updated':i['updated'],'resolved':i.get('resolved',''),
+                'logged':i.get('logged',0),'parent':None,'isEpic':False,'custom':i.get('custom',{})})
+
 data = {
     'project':'SCUPDATA - OKR (SCUPOKR)',
     'generated': TODAY.isoformat(),
@@ -249,6 +264,11 @@ data = {
     'alerts':alerts,
     'support':support,
     'overviewHours':overview_hours,
+    'allIssues':all_issues,
+    'today':TODAY.isoformat(),
+    'fetchFrom':f'{TODAY.year}-01-01',
+    'scupokrWorklogs':[{'key':w['key'],'summary':w.get('summary',''),'seconds':w['seconds'],
+                        'person':w['person'],'started':w.get('started','')} for w in worklogs],
     'issues':issues,
 }
 json.dump(data, open(os.path.join(OUTDIR,'dashboard_data.json'),'w',encoding='utf-8'), ensure_ascii=False, indent=1)

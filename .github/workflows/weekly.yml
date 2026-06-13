@@ -1,16 +1,21 @@
-name: Dashboard Semanal (refresh + e-mail)
+name: Dashboard (refresh diário + e-mail segunda)
 
 on:
   schedule:
-    # Segunda-feira 08:30 America/Sao_Paulo == 11:30 UTC
-    - cron: "30 11 * * 1"
-  workflow_dispatch: {}   # permite disparo manual pela aba Actions
+    # Diário 08:30 America/Sao_Paulo == 11:30 UTC (atualiza o relatório todo dia)
+    - cron: "30 11 * * *"
+  workflow_dispatch:
+    inputs:
+      force_email:
+        description: "Enviar e-mail mesmo fora de segunda (teste)"
+        type: boolean
+        default: false
 
 permissions:
-  contents: write          # para commitar o dashboard atualizado
+  contents: write
 
 concurrency:
-  group: dashboard-weekly
+  group: dashboard
   cancel-in-progress: false
 
 jobs:
@@ -25,12 +30,16 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Determinar dia da semana (1 = segunda, UTC)
+        id: dow
+        run: |
+          if [ "$(date -u +%u)" = "1" ]; then echo "is_monday=yes" >> "$GITHUB_OUTPUT"; else echo "is_monday=no" >> "$GITHUB_OUTPUT"; fi
+
       - name: Atualizar dados (Jira + Tempo) e regenerar dashboard
         env:
           JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
           JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
           TEMPO_TOKEN: ${{ secrets.TEMPO_TOKEN }}
-          DASH_PERIOD_START: ${{ vars.DASH_PERIOD_START }}
         run: python refresh_all.py
 
       - name: Commitar dashboard atualizado (dispara deploy do Amplify)
@@ -41,11 +50,13 @@ jobs:
           if git diff --cached --quiet; then
             echo "Sem mudancas no dashboard."
           else
-            git commit -m "chore: refresh semanal do dashboard [skip ci]"
+            git commit -m "chore: refresh diario do dashboard [skip ci]"
             git push
           fi
 
-      - name: Enviar e-mail semanal
+      # E-mail apenas na segunda-feira (resumo da semana ANTERIOR), ou disparo manual forcado
+      - name: Enviar e-mail semanal (segunda / manual)
+        if: ${{ steps.dow.outputs.is_monday == 'yes' || github.event.inputs.force_email == 'true' }}
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
@@ -54,4 +65,4 @@ jobs:
           MAIL_FROM: ${{ secrets.MAIL_FROM }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
           DASHBOARD_URL: ${{ vars.DASHBOARD_URL }}
-        run: python send_email.py
+        run: python send_email.py --previous-week

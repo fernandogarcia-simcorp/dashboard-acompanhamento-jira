@@ -25,7 +25,9 @@ os.makedirs(RAW, exist_ok=True)
 JIRA_SITE = os.environ.get('JIRA_SITE', 'simconsultas.atlassian.net')
 JIRA_EMAIL = os.environ.get('JIRA_EMAIL')
 JIRA_API_TOKEN = os.environ.get('JIRA_API_TOKEN')
-PERIOD = os.environ.get('DASH_PERIOD_START') or '2026-04-01'  # trata env var vazia (GH Actions)
+# janela de busca: desde 01/01 do ano corrente (o filtro de periodo do dashboard e dinamico, no navegador)
+import datetime as _dt
+FETCH_FROM = os.environ.get('DASH_FETCH_FROM') or f'{_dt.date.today().year}-01-01'
 
 def die(m): print('ERRO:', m); sys.exit(1)
 if not (JIRA_EMAIL and JIRA_API_TOKEN):
@@ -65,12 +67,14 @@ def save_raw(name, nodes):
 SCUPOKR_FIELDS = ['summary','issuetype','status','priority','assignee','created','updated','resolutiondate','parent','labels','duedate']
 # inclui campos customizados de SDE (Cliente 11704, Tipo de Sistema 11400) e
 # SDS (Organização 10804, Categoria 11702). Campos ausentes num projeto voltam nulos.
-SUP_FIELDS = ['summary','issuetype','status','priority','assignee','created','updated','timespent',
+SUP_FIELDS = ['summary','issuetype','status','priority','assignee','created','updated','resolutiondate','timespent',
               'customfield_11704','customfield_11400','customfield_10804','customfield_11702']
 
-print('1) Jira REST ...')
+print(f'1) Jira REST (desde {FETCH_FROM}) ...')
+# SCUPOKR: projeto de OKR, mantido cumulativo (todos os itens)
 save_raw('scupokr.json', jira_search('project = SCUPOKR ORDER BY created ASC', SCUPOKR_FIELDS))
-sup_jql = f'project = {{}} AND (created >= "{PERIOD}" OR updated >= "{PERIOD}") ORDER BY updated DESC'
+# SDE/SDS: suporte, desde 01/01 (criados OU movimentados); filtro de periodo e no navegador
+sup_jql = f'project = {{}} AND (created >= "{FETCH_FROM}" OR updated >= "{FETCH_FROM}") ORDER BY updated DESC'
 save_raw('sde.json', jira_search(sup_jql.format('SDE'), SUP_FIELDS))
 save_raw('sds.json', jira_search(sup_jql.format('SDS'), SUP_FIELDS))
 
