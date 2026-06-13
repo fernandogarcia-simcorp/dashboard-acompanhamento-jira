@@ -72,8 +72,16 @@ for a in alerts[:6]:
                    f'<span style="color:#8A4B12">{esc(a["assignee"])} · {esc(a["status"])} · {dtxt}</span></td></tr>')
 alert_extra = f'<tr><td style="font-family:Arial,sans-serif;font-size:12px;color:#8A4B12;padding-top:6px">+ {len(alerts)-6} outras</td></tr>' if len(alerts) > 6 else ''
 
-html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#F4F6F4;padding:24px 0">
-<table align="center" width="640" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;overflow:hidden;border:1px solid #E4E7E5">
+html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+@media only screen and (max-width:600px){{
+  .shell{{width:100%!important}}
+  .c2{{display:block!important;width:100%!important;padding:0 0 18px 0!important}}
+  .c2sp{{display:none!important}}
+  .kc{{display:inline-block!important;width:50%!important;box-sizing:border-box;padding-bottom:12px!important}}
+}}
+</style></head><body style="margin:0;background:#F4F6F4;padding:24px 0">
+<table align="center" width="640" class="shell" cellpadding="0" cellspacing="0" style="max-width:640px;width:100%;background:#fff;border-radius:8px;overflow:hidden;border:1px solid #E4E7E5">
   <tr><td style="background:#023859;padding:26px 30px">
     <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:2px;color:{GREEN};font-weight:bold">STATUS REPORT SEMANAL</div>
     <div style="font-family:Arial,sans-serif;font-size:22px;color:#fff;font-weight:bold;margin-top:6px">Suporte <span style="color:{GREEN}">/</span> Operações <span style="color:{GREEN}">/</span> Desenvolvimento</div>
@@ -84,19 +92,19 @@ html = f"""<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport
     <table width="100%" cellpadding="0" cellspacing="0">{prows}</table>
 
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:22px"><tr>
-      <td width="25%" style="font-family:Arial,sans-serif"><div style="font-size:30px;font-weight:bold;color:{NAVY}">{d['total']}</div><div style="font-size:11px;color:{GRAY}">ISSUES (SCUPOKR)</div></td>
-      <td width="25%" style="font-family:Arial,sans-serif"><div style="font-size:30px;font-weight:bold;color:{GREENd}">{d['pct']}%</div><div style="font-size:11px;color:{GRAY}">CONCLUÍDO</div></td>
-      <td width="25%" style="font-family:Arial,sans-serif"><div style="font-size:30px;font-weight:bold;color:{ORANGE}">{d['inprog']}</div><div style="font-size:11px;color:{GRAY}">EM ANDAMENTO</div></td>
-      <td width="25%" style="font-family:Arial,sans-serif"><div style="font-size:30px;font-weight:bold;color:{NAVY}">{d['todo']}</div><div style="font-size:11px;color:{GRAY}">A FAZER</div></td>
+      <td width="25%" class="kc" style="font-family:Arial,sans-serif"><div style="font-size:30px;font-weight:bold;color:{NAVY}">{d['total']}</div><div style="font-size:11px;color:{GRAY}">ISSUES (SCUPOKR)</div></td>
+      <td width="25%" class="kc" style="font-family:Arial,sans-serif"><div style="font-size:30px;font-weight:bold;color:{GREENd}">{d['pct']}%</div><div style="font-size:11px;color:{GRAY}">CONCLUÍDO</div></td>
+      <td width="25%" class="kc" style="font-family:Arial,sans-serif"><div style="font-size:30px;font-weight:bold;color:{ORANGE}">{d['inprog']}</div><div style="font-size:11px;color:{GRAY}">EM ANDAMENTO</div></td>
+      <td width="25%" class="kc" style="font-family:Arial,sans-serif"><div style="font-size:30px;font-weight:bold;color:{NAVY}">{d['todo']}</div><div style="font-size:11px;color:{GRAY}">A FAZER</div></td>
     </tr></table>
 
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:22px"><tr>
-      <td width="48%" valign="top">
+      <td width="48%" valign="top" class="c2">
         <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:1px;color:{GREENd};font-weight:bold;margin-bottom:6px">HORAS (TEMPO) · {hours_total}</div>
         <table width="100%" cellpadding="0" cellspacing="0">{person_rows}</table>
       </td>
-      <td width="4%"></td>
-      <td width="48%" valign="top">
+      <td width="4%" class="c2sp"></td>
+      <td width="48%" valign="top" class="c2">
         <div style="font-family:Arial,sans-serif;font-size:11px;letter-spacing:1px;color:{DANGER};font-weight:bold;margin-bottom:6px">ALERTAS · {len(alerts)} sem horas</div>
         <table width="100%" cellpadding="0" cellspacing="0">{alert_rows}{alert_extra}</table>
       </td>
