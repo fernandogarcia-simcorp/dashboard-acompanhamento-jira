@@ -298,6 +298,22 @@ footer .logo-plate img{height:26px;display:block}
 footer .ft{font-size:12.5px;color:rgba(255,255,255,.7);text-align:right;line-height:1.7}
 footer .ft .mono{color:rgba(255,255,255,.85)}
 
+/* responsável no card de iniciativa */
+.ec-asg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-700);margin-bottom:12px}
+.ec-asg .ic{color:var(--blue);font-size:14px}
+/* data nas linhas de relatório */
+.task .who .tdt{margin-left:8px;color:var(--gray-400);font-family:var(--mono);font-size:11px}
+/* relatório por período nos projetos de suporte */
+.sup-rep{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:6px}
+.sup-rep .rc{background:var(--gray-50);border:1px solid var(--border);border-radius:999px;padding:1px 7px;font-family:var(--mono);font-size:10px;color:var(--gray-700);margin-left:4px}
+/* insights */
+.ins{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--border)}
+.ins:last-child{border-bottom:none}
+.ins-ic{flex-shrink:0;font-size:20px;display:flex;line-height:1}
+.ins.warn .ins-ic{color:var(--warn)} .ins.ok .ins-ic{color:var(--green-deep)}
+.ins-t{font-size:14px;font-weight:600;color:var(--navy)}
+.ins-d{font-size:12px;color:var(--gray-700);margin-top:3px;line-height:1.6}
+.ins-d a{font-family:var(--mono);font-weight:700}
 img,svg{max-width:100%}
 /* permite que colunas de texto encolham (evita overflow horizontal no mobile) */
 .orow>div,.alert-row .info,.task>div,.wl .sm{min-width:0}
@@ -312,7 +328,7 @@ img,svg{max-width:100%}
   .filterbar .wrap{padding:10px 20px}
   .topband .wrap{padding:28px 20px 30px}
   .kpis{grid-template-columns:repeat(2,1fr)}
-  .cols,.rep-grid,.two-small,.epic-grid,.sup-cols,.sup-cols.cf-row{grid-template-columns:1fr}
+  .cols,.rep-grid,.two-small,.epic-grid,.sup-cols,.sup-cols.cf-row,.sup-rep{grid-template-columns:1fr}
   .sup-kpis{grid-template-columns:repeat(2,1fr)}
   .orphan-grid{grid-template-columns:1fr}
   .donut-wrap{flex-wrap:wrap;justify-content:center}
@@ -388,7 +404,18 @@ img,svg{max-width:100%}
 <section id="portfolioSec" data-view="overview">
   <div class="sec-head"><div class="l"><div class="eyebrow">Portfólio</div><h2>Projetos Acompanhados</h2></div><span class="sec-num" id="portfolioNum">3 PROJETOS</span></div>
   <div class="portfolio" id="portfolio"></div>
-  <p style="font-size:11.5px;color:var(--gray-400);margin-top:12px" id="portfolioNote"></p>
+  <div class="legend" style="margin-top:14px">
+    <span><i style="background:var(--green)"></i>Concluído / Resolvido</span>
+    <span><i style="background:var(--warn)"></i>Em andamento</span>
+    <span><i style="background:var(--gray-400)"></i>A fazer / backlog</span>
+  </div>
+  <p style="font-size:11.5px;color:var(--gray-400);margin-top:10px" id="portfolioNote"></p>
+</section>
+
+<!-- INSIGHTS (overview) -->
+<section data-view="overview">
+  <div class="sec-head"><div class="l"><div class="eyebrow">Sinais de atenção</div><h2>Insights</h2></div><span class="sec-num">ALERTAS</span></div>
+  <div class="panel"><div id="insightsHost"></div></div>
 </section>
 
 <!-- CONSOLIDADO (overview) -->
@@ -596,7 +623,7 @@ $('#heroPct').textContent=DATA.pct+'%';
   $('#heroLegend').insertAdjacentHTML('beforeend',`<span><i style="background:${col}"></i>${nm} · ${v}</span>`);});
 function epicCard(e){const c=el('div','epic-card');const segs=[[e.done,COL.done],[e.inprog,COL.prog],[e.todo,COL.todo]].filter(s=>s[0]>0);
   const stack=segs.map(([v,col])=>`<span style="width:${v/e.children*100}%;background:${col}"></span>`).join('')||'<span style="width:100%;background:var(--gray-50)"></span>';
-  c.innerHTML=`<div class="ec-top"><a href="${BASE}${e.key}" target="_blank" class="ec-key">${e.key}</a><span class="pill ${PILL(e.cat)}"><span class="d"></span>${e.status}</span></div><div class="ec-title">${esc(e.summary)}</div><div class="ec-pctrow"><span class="ec-pct">${e.pct}%</span><span class="ec-pctlab">concluído</span></div><div class="ec-stack">${stack}</div><div class="ec-legend"><span><i style="background:${COL.done}"></i>${e.done} concl.</span><span><i style="background:${COL.prog}"></i>${e.inprog} andam.</span><span><i style="background:${COL.todo}"></i>${e.todo} pend.</span></div><div class="ec-foot"><span>${e.children} sub-itens</span><span class="h">${fmtH(e.loggedSec)}</span></div>`;return c;}
+  c.innerHTML=`<div class="ec-top"><a href="${BASE}${e.key}" target="_blank" class="ec-key">${e.key}</a><span class="pill ${PILL(e.cat)}"><span class="d"></span>${e.status}</span></div><div class="ec-title">${esc(e.summary)}</div><div class="ec-asg"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${esc(e.assignee||'Não atribuído')}</div><div class="ec-pctrow"><span class="ec-pct">${e.pct}%</span><span class="ec-pctlab">concluído</span></div><div class="ec-stack">${stack}</div><div class="ec-legend"><span><i style="background:${COL.done}"></i>${e.done} concl.</span><span><i style="background:${COL.prog}"></i>${e.inprog} andam.</span><span><i style="background:${COL.todo}"></i>${e.todo} pend.</span></div><div class="ec-foot"><span>${e.children} sub-itens</span><span class="h">${fmtH(e.loggedSec)}</span></div>`;return c;}
 const epActive=DATA.epics.filter(e=>e.cat!=='done').sort((a,b)=>b.pct-a.pct||b.children-a.children);
 const epDone=DATA.epics.filter(e=>e.cat==='done').sort((a,b)=>b.children-a.children);
 epActive.forEach(e=>$('#epicActive').appendChild(epicCard(e)));epDone.forEach(e=>$('#epicDone').appendChild(epicCard(e)));
@@ -624,6 +651,20 @@ if(!AL.length)alList.innerHTML='<p style="font-size:13px;color:var(--gray-700)">
 AL.forEach(a=>{const r=el('div','alert-row');const d=a.daysIdle;const dtxt=(d==null)?'—':(d===0?'hoje':d+'d');r.innerHTML=`<a href="${BASE}${a.key}" target="_blank" class="k">${a.key}</a><div class="info"><div class="s">${esc(a.summary)}</div><div class="m">${esc(a.assignee)} · últ. mov. ${a.updated}</div></div><span class="pill prog"><span class="d"></span>${a.status}</span><span class="idle ${idleClass(d||0)}">${dtxt} · <span class="zero">0h</span></span>`;alList.appendChild(r);});
 $('#hoursNote').innerHTML=`<b>Fonte das horas do SCUPOKR</b><ul><li>Lançamentos reais do app <b>Tempo</b> (autor real de cada apontamento), filtrados pelo período selecionado.</li><li>No worklog sincronizado o autor nativo é a conta do app Tempo; nesses casos a hora é atribuída ao responsável da issue.</li></ul>`;
 $('#notes').innerHTML=`<b>Leitura</b><ul><li>Iniciativas <b>SCUPOKR-83</b> (base CNPJ/ML) e <b>SCUPOKR-123</b> (Portal SaaS Multi-Tenant) seguem em backlog — definir início.</li><li>Acompanhe os itens de prioridade Alta/Imediata em aberto para não represar entregas.</li><li>Os números acima (Concluído/Em andamento/Novos) refletem o período selecionado no topo.</li></ul>`;
+
+// ===================== INSIGHTS (estado atual) =====================
+(function(){const host=$('#insightsHost');if(!host)return;const items=[];
+  const ICONW='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  const ICONOK='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
+  // 1) WIP: mais de 1 atividade "Em andamento/Em Progresso" por responsável (estado atual)
+  const wip={};ALL.forEach(i=>{if(/progresso|andamento/i.test(i.status||'')){const a=i.assignee||'Não atribuído';(wip[a]=wip[a]||[]).push(i);}});
+  Object.entries(wip).filter(([a,arr])=>arr.length>1).sort((x,y)=>y[1].length-x[1].length).forEach(([a,arr])=>{
+    items.push({sev:'warn',title:`${esc(a)} tem ${arr.length} atividades "Em andamento" simultâneas`,
+      detail:arr.slice(0,8).map(i=>`<a href="${BASE}${i.key}" target="_blank">${i.key}</a> <span style="color:var(--gray-400)">(${esc(i.project)})</span>`).join(' · ')+(arr.length>8?` +${arr.length-8}`:'')});
+  });
+  if(!items.length){host.innerHTML=`<div class="ins ok"><span class="ins-ic">${ICONOK}</span><div><div class="ins-t">Nenhum sinal de atenção no momento.</div><div class="ins-d">Ninguém com mais de uma atividade em andamento simultânea.</div></div></div>`;return;}
+  host.innerHTML=items.map(it=>`<div class="ins ${it.sev}"><span class="ins-ic">${ICONW}</span><div><div class="ins-t">${it.title}</div><div class="ins-d">${it.detail}</div></div></div>`).join('');
+})();
 
 // ===================== FILTRO DE PROJETO =====================
 const FILTERS=[{f:'overview',label:'Visão geral'},{f:'SCUPOKR',label:'SCUPOKR'}];
@@ -665,8 +706,12 @@ function statusBars(arr,host){host.innerHTML='';const m={};arr.forEach(i=>{const
 function customBars(counts,host){host.innerHTML='';let ent=Object.entries(counts).sort((a,b)=>b[1]-a[1]);const top=ent.slice(0,8);const rest=ent.slice(8).reduce((a,[k,v])=>a+v,0);if(rest)top.push(['Outros',rest]);const mx=Math.max(...top.map(e=>e[1]),1);
   top.forEach(([k,v])=>{const r=el('div','sb');r.innerHTML=`<span class="nm" title="${esc(k)}">${esc(k)}</span><div class="tr"><span style="width:${Math.max(v/mx*100,3)}%;background:var(--navy)"></span></div><span class="n">${v}</span>`;host.appendChild(r);});}
 function cfVal(i,label){const v=(i.custom||{})[label];if(Array.isArray(v))return v.length?v:['Não informado'];return v==null?'Não informado':v;}
-function taskRows(arr,host,tag){host.innerHTML='';if(!arr.length){host.innerHTML='<p style="color:var(--gray-700);font-size:13px">Nenhum item nesta categoria.</p>';return;}
-  arr.slice(0,14).forEach(t=>{const c=el('div','task');c.innerHTML=`<a href="${BASE}${t.key}" target="_blank" class="k">${t.key}</a><div><div class="tx">${esc(t.summary)}${tag?projTag(t.project):''}</div><div class="who">${esc(t.assignee)} · ${esc(t.status)}</div></div>`;host.appendChild(c);});}
+function taskRows(arr,host,tag,kind){host.innerHTML='';if(!arr.length){host.innerHTML='<p style="color:var(--gray-700);font-size:13px">Nenhum item nesta categoria.</p>';return;}
+  arr.slice(0,14).forEach(t=>{const c=el('div','task');
+    let dt='';if(kind==='done'){const dd=t.resolved||t.updated;if(dd)dt=`<span class="tdt">concluído ${dd}</span>`;}
+    else if(kind==='prog'){if(t.updated)dt=`<span class="tdt">últ. mov. ${t.updated}</span>`;}
+    else if(kind==='new'){if(t.created)dt=`<span class="tdt">criado ${t.created}</span>`;}
+    c.innerHTML=`<a href="${BASE}${t.key}" target="_blank" class="k">${t.key}</a><div><div class="tx">${esc(t.summary)}${tag?projTag(t.project):''}</div><div class="who">${esc(t.assignee)} · ${esc(t.status)}${dt}</div></div>`;host.appendChild(c);});}
 function hoursLogs(p,proj){const logs=[];
   (DATA.scupokrWorklogs||[]).forEach(w=>{if((!proj||proj==='SCUPOKR')&&inR(w.started,p.start,p.end))logs.push({project:'SCUPOKR',key:w.key,summary:w.summary,seconds:w.seconds,person:w.person,started:w.started});});
   ALL.forEach(i=>{if(i.project!=='SCUPOKR'&&i.logged>0&&(!proj||proj===i.project)&&isActive(i,p))logs.push({project:i.project,key:i.key,summary:i.summary,seconds:i.logged,person:i.assignee,started:i.updated});});
@@ -706,7 +751,7 @@ function renderPeriod(){
   $('#ovHoursNote').innerHTML=`<b>Como as horas são contadas</b><ul><li><b>SCUPOKR</b>: lançamentos do app <b>Tempo</b> com data no período.</li><li><b>SDE / SDS</b>: total apontado por issue (timespent) das issues com atividade no período.</li></ul><div style="margin-top:8px;font-size:11.5px;color:var(--blue)">Período: ${P.label}.</div>`;
   const dDone=act.filter(i=>resolvedInP(i,P)),dNew=act.filter(i=>inR(i.created,P.start,P.end)),dPrg=act.filter(i=>i.cat==='indeterminate');
   $('#ovCntDone').textContent=dDone.length;$('#ovCntProg').textContent=dPrg.length;$('#ovCntNew').textContent=dNew.length;
-  taskRows(dDone,$('#ovWeekDone'),true);taskRows(dPrg,$('#ovWeekProg'),true);taskRows(dNew,$('#ovWeekNew'),true);
+  taskRows(dDone,$('#ovWeekDone'),true,'done');taskRows(dPrg,$('#ovWeekProg'),true,'prog');taskRows(dNew,$('#ovWeekNew'),true,'new');
   const pw=$('#ovProjWeek');pw.innerHTML=`<div class="r"><span class="hd">Projeto</span><span class="hd v">Resolv.</span><span class="hd v">Novos</span><span class="hd v">Movim.</span></div>`;
   cards.forEach(cd=>{const a=actProj(P,cd.key);const r=el('div','r');r.innerHTML=`<span class="pn">${cd.key}</span><span class="v" style="color:var(--green-deep)">${a.filter(i=>resolvedInP(i,P)).length}</span><span class="v">${a.filter(i=>inR(i.created,P.start,P.end)).length}</span><span class="v">${a.filter(i=>inR(i.updated,P.start,P.end)).length}</span>`;pw.appendChild(r);});
   renderSupport();
@@ -714,7 +759,7 @@ function renderPeriod(){
   renderHours(hoursLogs(P,'SCUPOKR'),$('#wlTable'),$('#hoursTotal'),$('#hoursByAuthor'));
   const sA=actProj(P,'SCUPOKR');
   $('#cntDone').textContent=sA.filter(i=>resolvedInP(i,P)).length;$('#cntProg').textContent=sA.filter(i=>i.cat==='indeterminate').length;$('#cntNew').textContent=sA.filter(i=>inR(i.created,P.start,P.end)).length;
-  taskRows(sA.filter(i=>resolvedInP(i,P)),$('#weekDone'),false);taskRows(sA.filter(i=>i.cat==='indeterminate'),$('#weekProg'),false);taskRows(sA.filter(i=>inR(i.created,P.start,P.end)),$('#weekNew'),false);
+  taskRows(sA.filter(i=>resolvedInP(i,P)),$('#weekDone'),false,'done');taskRows(sA.filter(i=>i.cat==='indeterminate'),$('#weekProg'),false,'prog');taskRows(sA.filter(i=>inR(i.created,P.start,P.end)),$('#weekNew'),false,'new');
 }
 function renderSupport(){const host=$('#supportSections');host.innerHTML='';if(!SUP)return;
   SUP.projects.forEach(p=>{const a=actProj(P,p.key);const done=a.filter(i=>i.cat==='done').length,prog=a.filter(i=>i.cat==='indeterminate').length,todo=a.filter(i=>i.cat==='new').length;
@@ -730,13 +775,22 @@ function renderSupport(){const host=$('#supportSections');host.innerHTML='';if(!
       </div>
       <div class="sup-cols"><div><div class="sub-eyebrow">Por status</div><div class="statbars sb-host"></div></div>
         <div><div class="sub-eyebrow">Por tipo</div><div class="minib ty-host"></div><div class="sub-eyebrow" style="margin-top:18px">Responsáveis</div><div class="asg as-host"></div></div></div>
-      ${(p.customCfg&&p.customCfg.length)?`<div class="cf-divider"><span class="lbl">Campos do projeto</span><span class="ln"></span></div><div class="sup-cols cf-row"></div>`:''}</div>`;
+      ${(p.customCfg&&p.customCfg.length)?`<div class="cf-divider"><span class="lbl">Campos do projeto</span><span class="ln"></span></div><div class="sup-cols cf-row"></div>`:''}
+      <div class="cf-divider"><span class="lbl">Atividades no período</span><span class="ln"></span></div>
+      <div class="sup-rep">
+        <div><div class="sub-eyebrow">Resolvido <span class="rc rh-done-c"></span></div><div class="rh-done"></div></div>
+        <div><div class="sub-eyebrow">Em andamento <span class="rc rh-prog-c"></span></div><div class="rh-prog"></div></div>
+        <div><div class="sub-eyebrow">Novos <span class="rc rh-new-c"></span></div><div class="rh-new"></div></div>
+      </div></div>`;
     host.appendChild(sec);
     statusBars(a,sec.querySelector('.sb-host'));
     miniBars(aggCount(a,i=>i.type),sec.querySelector('.ty-host'),[COL.navy,'#0079C1','#6c8f7f','#9bb0a5']);
     simpleAsg(a,sec.querySelector('.as-host'));
     const cfRow=sec.querySelector('.cf-row');
     if(cfRow)(p.customCfg||[]).forEach(cf=>{const col=el('div');col.innerHTML=`<div class="sub-eyebrow">${esc(cf.label)}</div><div class="statbars cf-host"></div>`;cfRow.appendChild(col);customBars(aggCount(a,i=>cfVal(i,cf.label)),col.querySelector('.cf-host'));});
+    const aDone=a.filter(i=>resolvedInP(i,P)),aPrg=a.filter(i=>i.cat==='indeterminate'),aNew=a.filter(i=>inR(i.created,P.start,P.end));
+    sec.querySelector('.rh-done-c').textContent=aDone.length;sec.querySelector('.rh-prog-c').textContent=aPrg.length;sec.querySelector('.rh-new-c').textContent=aNew.length;
+    taskRows(aDone,sec.querySelector('.rh-done'),false,'done');taskRows(aPrg,sec.querySelector('.rh-prog'),false,'prog');taskRows(aNew,sec.querySelector('.rh-new'),false,'new');
   });
   applyFilter(CURPROJ);
 }

@@ -166,7 +166,7 @@ for e in sorted(epics, key=lambda x:int(x['key'].split('-')[1])):
     ctodo = sum(1 for c in ch if c['cat']=='new')
     clogged = sum(c.get('logged',0) for c in ch) + e.get('logged',0)
     epic_rows.append({
-        'key':e['key'],'summary':e['summary'],'status':e['status'],'cat':e['cat'],
+        'key':e['key'],'summary':e['summary'],'status':e['status'],'cat':e['cat'],'assignee':e['assignee'],
         'children':len(ch),'done':cdone,'inprog':cprog,'todo':ctodo,'loggedSec':clogged,
         'pct': round(cdone/len(ch)*100) if ch else (100 if e['cat']=='done' else 0)
     })
