@@ -16,7 +16,7 @@ TEMPLATE = r"""<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Projetos Ativos — Status Report Semanal</title>
+<title>Suporte / Operações / Desenvolvimento — Status Report Semanal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,600&display=swap" rel="stylesheet">
@@ -57,7 +57,7 @@ a:hover{color:var(--navy-700)}
 .logo-plate img{height:30px;width:auto;display:block}
 .brandrow .env{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:rgba(255,255,255,.62)}
 .h-eyebrow{font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:var(--green)}
-.h-title{font-weight:800;font-size:clamp(38px,6vw,68px);line-height:1;letter-spacing:-.02em;color:#fff;margin:12px 0 0}
+.h-title{font-weight:800;font-size:clamp(28px,4.3vw,50px);line-height:1.04;letter-spacing:-.02em;color:#fff;margin:12px 0 0}
 .h-title b{color:var(--green);font-weight:800}
 .h-meta{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin-top:22px;font-size:13.5px;color:rgba(255,255,255,.82)}
 .h-meta b{color:#fff;font-weight:700}
@@ -305,7 +305,7 @@ footer .ft .mono{color:rgba(255,255,255,.85)}
       <span class="env">JIRA · simconsultas.atlassian.net</span>
     </div>
     <div class="h-eyebrow">SIMCORP · Status Report Semanal</div>
-    <h1 class="h-title">Projetos <b>Ativos</b></h1>
+    <h1 class="h-title">Suporte <b>/</b> Operações <b>/</b> Desenvolvimento</h1>
     <div class="h-meta">
       <span class="h-chip"><span class="d"></span> <span id="hChipProjects">projetos ativos</span></span>
       <span>Emitido em <b id="genDate"></b></span>
