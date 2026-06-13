@@ -148,7 +148,7 @@ for w in worklogs:
         w['person'] = assignee_by_key.get(w['key'], w.get('author','')) if is_app else w.get('author','')
     hours_by_person[w['person']] += w['seconds']
     worklog_sec[w['key']] = worklog_sec.get(w['key'],0) + w['seconds']
-worklogs.sort(key=lambda w:-w['seconds'])
+worklogs.sort(key=lambda w:(w.get('started') or '', w['seconds']), reverse=True)  # mais recente primeiro
 for i in issues:
     i['logged'] = worklog_sec.get(i['key'], 0)
 
@@ -219,7 +219,7 @@ if support:
             ov_logs.append({'project':p['key'],'key':hl['key'],'summary':hl['summary'],
                             'seconds':hl['seconds'],'person':hl['person'],'started':hl['started']})
             ov_byperson[hl['person']] += hl['seconds']
-ov_logs.sort(key=lambda x:-x['seconds'])
+ov_logs.sort(key=lambda x:(x.get('started') or '', x['seconds']), reverse=True)  # mais recente primeiro
 overview_hours = {'totalSec':sum(x['seconds'] for x in ov_logs),
                   'byPerson':dict(ov_byperson.most_common()), 'logs':ov_logs}
 
