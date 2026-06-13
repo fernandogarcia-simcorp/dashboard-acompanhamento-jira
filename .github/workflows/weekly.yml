@@ -4,12 +4,7 @@ on:
   schedule:
     # Diário 08:30 America/Sao_Paulo == 11:30 UTC (atualiza o relatório todo dia)
     - cron: "30 11 * * *"
-  workflow_dispatch:
-    inputs:
-      force_email:
-        description: "Enviar e-mail mesmo fora de segunda (teste)"
-        type: boolean
-        default: false
+  workflow_dispatch: {}   # disparo manual sempre envia o e-mail (teste)
 
 permissions:
   contents: write
@@ -54,9 +49,9 @@ jobs:
             git push
           fi
 
-      # E-mail apenas na segunda-feira (resumo da semana ANTERIOR), ou disparo manual forcado
+      # E-mail na segunda-feira (resumo da semana ANTERIOR) OU em qualquer disparo manual (teste)
       - name: Enviar e-mail semanal (segunda / manual)
-        if: ${{ steps.dow.outputs.is_monday == 'yes' || github.event.inputs.force_email == 'true' }}
+        if: ${{ steps.dow.outputs.is_monday == 'yes' || github.event_name == 'workflow_dispatch' }}
         env:
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
