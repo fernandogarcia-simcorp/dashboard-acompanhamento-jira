@@ -404,7 +404,8 @@ img,svg{max-width:100%}
 <section id="portfolioSec" data-view="overview">
   <div class="sec-head"><div class="l"><div class="eyebrow">Portfólio</div><h2>Projetos Acompanhados</h2></div><span class="sec-num" id="portfolioNum">3 PROJETOS</span></div>
   <div class="portfolio" id="portfolio"></div>
-  <div class="legend" style="margin-top:14px">
+  <div class="legend" style="margin-top:14px;align-items:center">
+    <span style="font-weight:800;color:var(--gray-400);font-size:10px;text-transform:uppercase;letter-spacing:.1em">Legenda das barras</span>
     <span><i style="background:var(--green)"></i>Concluído / Resolvido</span>
     <span><i style="background:var(--warn)"></i>Em andamento</span>
     <span><i style="background:var(--gray-400)"></i>A fazer / backlog</span>
@@ -658,11 +659,11 @@ $('#notes').innerHTML=`<b>Leitura</b><ul><li>Iniciativas <b>SCUPOKR-83</b> (base
   const ICONOK='<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>';
   // 1) WIP: mais de 1 atividade "Em andamento/Em Progresso" por responsável (estado atual)
   const wip={};ALL.forEach(i=>{if(/progresso|andamento/i.test(i.status||'')){const a=i.assignee||'Não atribuído';(wip[a]=wip[a]||[]).push(i);}});
-  Object.entries(wip).filter(([a,arr])=>arr.length>1).sort((x,y)=>y[1].length-x[1].length).forEach(([a,arr])=>{
+  Object.entries(wip).filter(([a,arr])=>arr.length>2).sort((x,y)=>y[1].length-x[1].length).forEach(([a,arr])=>{
     items.push({sev:'warn',title:`${esc(a)} tem ${arr.length} atividades "Em andamento" simultâneas`,
       detail:arr.slice(0,8).map(i=>`<a href="${BASE}${i.key}" target="_blank">${i.key}</a> <span style="color:var(--gray-400)">(${esc(i.project)})</span>`).join(' · ')+(arr.length>8?` +${arr.length-8}`:'')});
   });
-  if(!items.length){host.innerHTML=`<div class="ins ok"><span class="ins-ic">${ICONOK}</span><div><div class="ins-t">Nenhum sinal de atenção no momento.</div><div class="ins-d">Ninguém com mais de uma atividade em andamento simultânea.</div></div></div>`;return;}
+  if(!items.length){host.innerHTML=`<div class="ins ok"><span class="ins-ic">${ICONOK}</span><div><div class="ins-t">Nenhum sinal de atenção no momento.</div><div class="ins-d">Ninguém com mais de duas atividades em andamento simultâneas.</div></div></div>`;return;}
   host.innerHTML=items.map(it=>`<div class="ins ${it.sev}"><span class="ins-ic">${ICONW}</span><div><div class="ins-t">${it.title}</div><div class="ins-d">${it.detail}</div></div></div>`).join('');
 })();
 
