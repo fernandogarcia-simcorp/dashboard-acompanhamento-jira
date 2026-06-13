@@ -206,6 +206,23 @@ alerts.sort(key=lambda a:(-(a['daysIdle'] if a['daysIdle'] is not None else -1))
 support_path = os.path.join(OUTDIR, 'support_data.json')
 support = json.load(open(support_path, encoding='utf-8')) if os.path.exists(support_path) else None
 
+# ---- horas consolidadas (todos os projetos) para a Visao Geral ----
+# SCUPOKR = lancamentos detalhados do Tempo; SDE/SDS = total por issue (timespent)
+ov_logs, ov_byperson = [], collections.Counter()
+for w in worklogs:
+    ov_logs.append({'project':'SCUPOKR','key':w['key'],'summary':w.get('summary',''),
+                    'seconds':w['seconds'],'person':w['person'],'started':w.get('started','')})
+    ov_byperson[w['person']] += w['seconds']
+if support:
+    for p in support['projects']:
+        for hl in p.get('hourLogs', []):
+            ov_logs.append({'project':p['key'],'key':hl['key'],'summary':hl['summary'],
+                            'seconds':hl['seconds'],'person':hl['person'],'started':hl['started']})
+            ov_byperson[hl['person']] += hl['seconds']
+ov_logs.sort(key=lambda x:-x['seconds'])
+overview_hours = {'totalSec':sum(x['seconds'] for x in ov_logs),
+                  'byPerson':dict(ov_byperson.most_common()), 'logs':ov_logs}
+
 data = {
     'project':'SCUPDATA - OKR (SCUPOKR)',
     'generated': TODAY.isoformat(),
@@ -231,6 +248,7 @@ data = {
     'hoursSupplemented':hours_supplemented,
     'alerts':alerts,
     'support':support,
+    'overviewHours':overview_hours,
     'issues':issues,
 }
 json.dump(data, open(os.path.join(OUTDIR,'dashboard_data.json'),'w',encoding='utf-8'), ensure_ascii=False, indent=1)

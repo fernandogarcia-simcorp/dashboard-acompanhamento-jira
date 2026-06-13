@@ -277,6 +277,13 @@ section{padding:44px 0}
 .task .who{font-size:11.5px;color:var(--gray-700);margin-top:2px}
 .count-badge{font-family:var(--mono);font-size:12px;background:var(--navy);color:#fff;border-radius:999px;padding:2px 10px;font-weight:600;margin-left:4px}
 .count-badge.danger{background:var(--danger)}
+.ptag2{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.04em;color:#fff;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:1px}
+.projweek{display:flex;flex-direction:column;gap:10px}
+.projweek .r{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;font-size:13px;padding-bottom:9px;border-bottom:1px solid var(--border)}
+.projweek .r:last-child{border-bottom:none}
+.projweek .r .pn{font-weight:700;color:var(--navy)}
+.projweek .r .v{font-family:var(--mono);font-weight:700;min-width:54px;text-align:right}
+.projweek .hd{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-400);font-weight:700}
 
 /* ---------- footer ---------- */
 footer{background:var(--grad-blue);margin-top:36px}
@@ -389,6 +396,36 @@ img,svg{max-width:100%}
       <span><i style="background:var(--gray-400)"></i>A fazer / backlog</span>
     </div>
     <div class="asg" id="ovAssignees"></div>
+  </div>
+</section>
+
+<!-- HORAS (overview) -->
+<section data-view="overview">
+  <div class="sec-head"><div class="l"><div class="eyebrow">Time tracking · todos os projetos</div><h2>Horas Apontadas</h2></div><span class="sec-num">CONSOLIDADO</span></div>
+  <div class="cols">
+    <div class="panel">
+      <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Lançamentos no período</h3>
+      <table class="wl" id="ovHoursTable"></table>
+      <div class="wl-foot"><span>Total apontado (todos)</span><b id="ovHoursTotal" class="mono"></b></div>
+    </div>
+    <div class="panel">
+      <h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Horas por responsável</h3>
+      <div class="asg" id="ovHoursByPerson" style="margin-bottom:18px"></div>
+      <div class="note" id="ovHoursNote"></div>
+    </div>
+  </div>
+</section>
+
+<!-- RELATORIO DA SEMANA (overview) -->
+<section data-view="overview">
+  <div class="sec-head"><div class="l"><div class="eyebrow">Destaques · todos os projetos</div><h2>Relatório da Semana</h2></div><span class="sec-num">CONSOLIDADO</span></div>
+  <div class="rep-grid">
+    <div class="panel"><h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Concluído nesta semana <span class="count-badge" id="ovCntDone"></span></h3><div id="ovWeekDone"></div></div>
+    <div class="panel"><h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Em andamento nesta semana <span class="count-badge" id="ovCntProg"></span></h3><div id="ovWeekProg"></div></div>
+  </div>
+  <div class="rep-grid" style="margin-top:24px">
+    <div class="panel"><h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Novos itens nesta semana <span class="count-badge" id="ovCntNew"></span></h3><div id="ovWeekNew"></div></div>
+    <div class="panel"><h3><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> Resumo por projeto (semana)</h3><div class="projweek" id="ovProjWeek"></div></div>
   </div>
 </section>
 
@@ -609,6 +646,59 @@ function applyFilter(f){
     elm.style.display = elm.getAttribute('data-view').split(' ').includes(f) ? '' : 'none';});
   document.querySelectorAll('.fbtn').forEach(b=>b.classList.toggle('active', b.dataset.filter===f));
 }
+
+// ---- Visão Geral: Horas Apontadas (todos os projetos) ----
+const PROJ_COL={SCUPOKR:'var(--navy)',SDE:'#0079C1',SDS:'#3a6b57'};
+const projTag=(p)=>`<span class="ptag2" style="background:${PROJ_COL[p]||'var(--gray-400)'}">${esc(p)}</span>`;
+const OVH=DATA.overviewHours||{logs:[],byPerson:{},totalSec:0};
+const ovht=$('#ovHoursTable');
+OVH.logs.slice(0,14).forEach(l=>{const tr=document.createElement('tr');
+  tr.innerHTML=`<td><a href="${BASE}${l.key}" target="_blank" class="k">${l.key}</a></td>
+    <td><div class="sm">${esc(l.summary)}${projTag(l.project)}</div><div class="meta">${esc(l.person)}${l.started?' · '+l.started:''}</div></td>
+    <td class="hrs">${fmtH(l.seconds)}</td>`;
+  ovht.appendChild(tr);});
+if(!OVH.logs.length) ovht.innerHTML='<tr><td style="color:var(--gray-700);font-size:13px">Sem horas apontadas no período.</td></tr>';
+$('#ovHoursTotal').textContent=fmtH(OVH.totalSec);
+const ovhp=Object.entries(OVH.byPerson).sort((a,b)=>b[1]-a[1]);const ovhMax=Math.max(...ovhp.map(a=>a[1]),1);
+ovhp.forEach(([nm,sec])=>{const c=el('div','a');
+  c.innerHTML=`<div class="nm">${esc(nm)}</div><div class="track"><span style="width:${sec/ovhMax*100}%;background:var(--grad-green)"></span></div><div class="n" style="width:auto;white-space:nowrap">${fmtH(sec)}</div>`;
+  $('#ovHoursByPerson').appendChild(c);});
+$('#ovHoursNote').innerHTML=`<b>Como as horas são contadas</b>
+<ul>
+  <li><b>SCUPOKR</b>: lançamentos detalhados do app <b>Tempo</b> (autor real de cada apontamento).</li>
+  <li><b>SDE / SDS</b>: total apontado por issue (campo <b>timespent</b> do Jira), atribuído ao responsável.</li>
+</ul>
+<div style="margin-top:8px;font-size:11.5px;color:var(--blue)">Apenas itens do período. ${OVH.logs.length} lançamento(s) somando ${fmtH(OVH.totalSec)}.</div>`;
+
+// ---- Visão Geral: Relatório da Semana (todos os projetos) ----
+function weekStartISO(s){const d=new Date(s+'T00:00:00');const off=(d.getDay()+6)%7;d.setDate(d.getDate()-off);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+const CURW=DATA.curWeek;
+const inCurWeek=(s)=>!!s && weekStartISO(s)===CURW;
+const allW=[];
+(DATA.issues||[]).forEach(i=>allW.push(Object.assign({project:'SCUPOKR'},i)));
+if(SUP) SUP.projects.forEach(p=>(p.issues||[]).forEach(i=>allW.push(Object.assign({project:p.key},i))));
+const wDone=allW.filter(i=>i.cat==='done'&&inCurWeek(i.updated));
+const wProg=allW.filter(i=>i.cat==='indeterminate'&&inCurWeek(i.updated));
+const wNew=allW.filter(i=>inCurWeek(i.created));
+function ovTaskList(arr,host){
+  if(!arr.length){host.innerHTML='<p style="color:var(--gray-700);font-size:13px">Nenhum item nesta categoria.</p>';return;}
+  arr.slice(0,14).forEach(t=>{const c=el('div','task');
+    c.innerHTML=`<a href="${BASE}${t.key}" target="_blank" class="k">${t.key}</a>
+      <div><div class="tx">${esc(t.summary)}${projTag(t.project)}</div><div class="who">${esc(t.assignee)} · ${esc(t.status)}</div></div>`;
+    host.appendChild(c);});}
+$('#ovCntDone').textContent=wDone.length;$('#ovCntProg').textContent=wProg.length;$('#ovCntNew').textContent=wNew.length;
+ovTaskList(wDone,$('#ovWeekDone'));ovTaskList(wProg,$('#ovWeekProg'));ovTaskList(wNew,$('#ovWeekNew'));
+const projW={};['SCUPOKR'].concat(SUP?SUP.projects.map(p=>p.key):[]).forEach(k=>projW[k]={done:0,nw:0,mov:0});
+allW.forEach(i=>{const k=i.project;if(!projW[k])projW[k]={done:0,nw:0,mov:0};
+  if(i.cat==='done'&&inCurWeek(i.updated))projW[k].done++;
+  if(inCurWeek(i.created))projW[k].nw++;
+  if(inCurWeek(i.updated))projW[k].mov++;});
+const pwHost=$('#ovProjWeek');
+pwHost.innerHTML=`<div class="r"><span class="hd">Projeto</span><span class="hd v">Concl.</span><span class="hd v">Novos</span><span class="hd v">Movim.</span></div>`;
+Object.entries(projW).forEach(([k,o])=>{const r=el('div','r');
+  r.innerHTML=`<span class="pn">${esc(k)}</span><span class="v" style="color:var(--green-deep)">${o.done}</span><span class="v">${o.nw}</span><span class="v">${o.mov}</span>`;
+  pwHost.appendChild(r);});
 
 // ---- hero progress ----
 $('#heroPct').textContent=DATA.pct+'%';

@@ -61,7 +61,18 @@ for key, (path, name) in SRC.items():
             'assignee': (f.get('assignee') or {}).get('displayName', 'Nao atribuido'),
             'created': f['created'][:10],
             'updated': (f.get('updated') or '')[:10],
+            'logged': f.get('timespent') or 0,   # horas apontadas (total por issue, seg)
         })
+    # horas apontadas (timespent por issue, atribuido ao responsavel)
+    hour_logs = sorted(
+        [{'key': i['key'], 'summary': i['summary'], 'seconds': i['logged'],
+          'person': i['assignee'], 'started': i['updated']} for i in issues if i['logged'] > 0],
+        key=lambda x: -x['seconds'])
+    hours_by_person = collections.Counter()
+    for i in issues:
+        if i['logged'] > 0:
+            hours_by_person[i['assignee']] += i['logged']
+    hours_total = sum(i['logged'] for i in issues)
     by_status = collections.Counter(i['status'] for i in issues)
     by_cat = collections.Counter(i['cat'] for i in issues)
     by_type = collections.Counter(i['type'] for i in issues)
@@ -90,6 +101,7 @@ for key, (path, name) in SRC.items():
         'byStatus': dict(by_status), 'statusCat': {i['status']: i['cat'] for i in issues}, 'byType': dict(by_type),
         'byPriority': dict(by_prio), 'byAssignee': dict(by_asg),
         'custom': custom_summaries(nodes, key),
+        'hoursTotalSec': hours_total, 'hoursByPerson': dict(hours_by_person.most_common()), 'hourLogs': hour_logs,
         'weekly': weekly, 'issues': issues,
     })
     print(f"{key}: {len(issues)} no periodo | done {by_cat.get('done',0)} prog {by_cat.get('indeterminate',0)} todo {by_cat.get('new',0)}")
