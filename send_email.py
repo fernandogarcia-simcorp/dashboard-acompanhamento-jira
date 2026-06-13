@@ -134,8 +134,14 @@ msg['To'] = ', '.join(mail_to)
 msg.attach(MIMEText('Seu cliente de e-mail não suporta HTML. Acesse o dashboard: ' + URL, 'plain', 'utf-8'))
 msg.attach(MIMEText(html, 'html', 'utf-8'))
 
-with smtplib.SMTP(host, port, timeout=60) as s:
-    s.starttls()
-    s.login(user, pwd)
-    s.sendmail(mail_from, mail_to, msg.as_string())
-print(f'E-mail enviado para {len(mail_to)} destinatario(s).')
+# porta 465 = TLS implícito (SMTP_SSL); 587 = STARTTLS. Compatível com SES SMTP, O365, Gmail.
+if port == 465:
+    with smtplib.SMTP_SSL(host, port, timeout=60) as s:
+        s.login(user, pwd)
+        s.sendmail(mail_from, mail_to, msg.as_string())
+else:
+    with smtplib.SMTP(host, port, timeout=60) as s:
+        s.ehlo(); s.starttls(); s.ehlo()
+        s.login(user, pwd)
+        s.sendmail(mail_from, mail_to, msg.as_string())
+print(f'E-mail enviado para {len(mail_to)} destinatario(s) via {host}.')
