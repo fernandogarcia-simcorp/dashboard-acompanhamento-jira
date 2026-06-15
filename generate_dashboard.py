@@ -284,7 +284,7 @@ section{padding:44px 0}
 .count-badge.danger{background:var(--danger)}
 .ptag2{display:inline-block;font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.04em;color:#fff;padding:2px 7px;border-radius:999px;margin-left:6px;vertical-align:1px}
 .projweek{display:flex;flex-direction:column;gap:10px}
-.projweek .r{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;font-size:13px;padding-bottom:9px;border-bottom:1px solid var(--border)}
+.projweek .r{display:grid;grid-template-columns:1fr auto auto auto auto;gap:12px;align-items:center;font-size:13px;padding-bottom:9px;border-bottom:1px solid var(--border)}
 .projweek .r:last-child{border-bottom:none}
 .projweek .r .pn{font-weight:700;color:var(--navy)}
 .projweek .r .v{font-family:var(--mono);font-weight:700;min-width:54px;text-align:right}
@@ -708,11 +708,14 @@ function customBars(counts,host){host.innerHTML='';let ent=Object.entries(counts
   top.forEach(([k,v])=>{const r=el('div','sb');r.innerHTML=`<span class="nm" title="${esc(k)}">${esc(k)}</span><div class="tr"><span style="width:${Math.max(v/mx*100,3)}%;background:var(--navy)"></span></div><span class="n">${v}</span>`;host.appendChild(r);});}
 function cfVal(i,label){const v=(i.custom||{})[label];if(Array.isArray(v))return v.length?v:['Não informado'];return v==null?'Não informado':v;}
 function taskRows(arr,host,tag,kind){host.innerHTML='';if(!arr.length){host.innerHTML='<p style="color:var(--gray-700);font-size:13px">Nenhum item nesta categoria.</p>';return;}
-  arr.slice(0,14).forEach(t=>{const c=el('div','task');
+  const dkey=kind==='done'?(t=>t.resolved||t.updated||''):kind==='prog'?(t=>t.updated||''):(t=>t.created||'');
+  const sorted=arr.slice().sort((a,b)=>dkey(b).localeCompare(dkey(a)));const LIM=14;
+  sorted.slice(0,LIM).forEach(t=>{const c=el('div','task');
     let dt='';if(kind==='done'){const dd=t.resolved||t.updated;if(dd)dt=`<span class="tdt">concluído ${dd}</span>`;}
     else if(kind==='prog'){if(t.updated)dt=`<span class="tdt">últ. mov. ${t.updated}</span>`;}
     else if(kind==='new'){if(t.created)dt=`<span class="tdt">criado ${t.created}</span>`;}
-    c.innerHTML=`<a href="${BASE}${t.key}" target="_blank" class="k">${t.key}</a><div><div class="tx">${esc(t.summary)}${tag?projTag(t.project):''}</div><div class="who">${esc(t.assignee)} · ${esc(t.status)}${dt}</div></div>`;host.appendChild(c);});}
+    c.innerHTML=`<a href="${BASE}${t.key}" target="_blank" class="k">${t.key}</a><div><div class="tx">${esc(t.summary)}${tag?projTag(t.project):''}</div><div class="who">${esc(t.assignee)} · ${esc(t.status)}${dt}</div></div>`;host.appendChild(c);});
+  if(sorted.length>LIM){const m=el('div');m.style.cssText='font-size:11.5px;color:var(--gray-400);padding-top:9px;font-style:italic';m.textContent=`mostrando os ${LIM} mais recentes de ${sorted.length}`;host.appendChild(m);}}
 function hoursLogs(p,proj){const logs=[];
   (DATA.scupokrWorklogs||[]).forEach(w=>{if((!proj||proj==='SCUPOKR')&&inR(w.started,p.start,p.end))logs.push({project:'SCUPOKR',key:w.key,summary:w.summary,seconds:w.seconds,person:w.person,started:w.started});});
   ALL.forEach(i=>{if(i.project!=='SCUPOKR'&&i.logged>0&&(!proj||proj===i.project)&&isActive(i,p))logs.push({project:i.project,key:i.key,summary:i.summary,seconds:i.logged,person:i.assignee,started:i.updated});});
@@ -753,8 +756,8 @@ function renderPeriod(){
   const dDone=act.filter(i=>resolvedInP(i,P)),dNew=act.filter(i=>inR(i.created,P.start,P.end)),dPrg=act.filter(i=>i.cat==='indeterminate');
   $('#ovCntDone').textContent=dDone.length;$('#ovCntProg').textContent=dPrg.length;$('#ovCntNew').textContent=dNew.length;
   taskRows(dDone,$('#ovWeekDone'),true,'done');taskRows(dPrg,$('#ovWeekProg'),true,'prog');taskRows(dNew,$('#ovWeekNew'),true,'new');
-  const pw=$('#ovProjWeek');pw.innerHTML=`<div class="r"><span class="hd">Projeto</span><span class="hd v">Resolv.</span><span class="hd v">Novos</span><span class="hd v">Movim.</span></div>`;
-  cards.forEach(cd=>{const a=actProj(P,cd.key);const r=el('div','r');r.innerHTML=`<span class="pn">${cd.key}</span><span class="v" style="color:var(--green-deep)">${a.filter(i=>resolvedInP(i,P)).length}</span><span class="v">${a.filter(i=>inR(i.created,P.start,P.end)).length}</span><span class="v">${a.filter(i=>inR(i.updated,P.start,P.end)).length}</span>`;pw.appendChild(r);});
+  const pw=$('#ovProjWeek');pw.innerHTML=`<div class="r"><span class="hd">Projeto</span><span class="hd v">Resolv.</span><span class="hd v">Novos</span><span class="hd v">Movim.</span><span class="hd v">Pend.</span></div>`;
+  cards.forEach(cd=>{const a=actProj(P,cd.key);const r=el('div','r');r.innerHTML=`<span class="pn">${cd.key}</span><span class="v" style="color:var(--green-deep)">${a.filter(i=>resolvedInP(i,P)).length}</span><span class="v">${a.filter(i=>inR(i.created,P.start,P.end)).length}</span><span class="v">${a.filter(i=>inR(i.updated,P.start,P.end)).length}</span><span class="v" style="color:var(--warn)">${a.filter(i=>i.cat!=='done').length}</span>`;pw.appendChild(r);});
   renderSupport();
   // SCUPOKR período: horas + relatório
   renderHours(hoursLogs(P,'SCUPOKR'),$('#wlTable'),$('#hoursTotal'),$('#hoursByAuthor'));
