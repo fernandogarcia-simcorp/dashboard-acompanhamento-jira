@@ -158,7 +158,7 @@ if DRY:
     sys.exit(0)
 
 host = os.environ.get('SMTP_HOST'); port = int(os.environ.get('SMTP_PORT', '587'))
-user = os.environ.get('SMTP_USER')
+user = (os.environ.get('SMTP_USER') or '').strip()
 # Gmail mostra a senha de app em 4 grupos separados por espaco; o valor real nao tem espacos.
 pwd = (os.environ.get('SMTP_PASS') or '').replace(' ', '').strip()
 mail_from = os.environ.get('MAIL_FROM', user)
