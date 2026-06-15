@@ -8,7 +8,7 @@ e envia o **resumo semanal por e-mail** (SMTP).
 GitHub Actions (cron seg 08:30 BRT)
    └─ refresh_all.py ── Jira REST (SCUPOKR, SDE, SDS) + Tempo  → dashboard.html / index.html
    └─ git commit index.html  ─────────────────────────────────→ Amplify faz deploy
-   └─ send_email.py ── SMTP (O365/Gmail) ─────────────────────→ resumo + link p/ a equipe
+   └─ send_email.py ── SMTP Gmail (smtp.gmail.com) ───────────→ resumo + link p/ a equipe
 ```
 
 ## Componentes
@@ -28,9 +28,15 @@ GitHub Actions (cron seg 08:30 BRT)
 ## Pré-requisitos (gerar uma vez)
 1. **Token de API do Jira** — https://id.atlassian.com/manage/api-tokens
 2. **Token do Tempo** — Tempo → Settings → API Integration (com permissão *View Worklogs* de alcance total).
-3. **Conta de envio de e-mail + senha de app**:
-   - **Office 365**: `smtp.office365.com` / porta `587`. Requer *app password* (MFA) habilitado para a conta.
-   - **Gmail**: `smtp.gmail.com` / `587` + senha de app (https://myaccount.google.com/apppasswords).
+3. **Conta de envio de e-mail + senha de app** — método oficial: **Gmail / Google Workspace**:
+   - **Gmail (recomendado)**: `smtp.gmail.com` / `587` STARTTLS. Conta de envio: `relatorios@simconsultas.com.br`.
+     Requer **verificação em 2 etapas** ativa na conta; gere uma **Senha de App** em
+     https://myaccount.google.com/apppasswords (16 caracteres — cole **sem os espaços**).
+     É o mesmo mecanismo usado com sucesso pelo projeto `AutomacaoEnvioRelatorioFiscal`.
+   - **Office 365** (não use): a Microsoft desativou o *basic SMTP AUTH*, então `smtp.office365.com`
+     retorna `535 5.7.3 Authentication unsuccessful`. Por isso o envio foi padronizado no Gmail.
+   - **AWS SES** (descontinuado aqui): retornava `535 Authentication Credentials Invalid`
+     (credenciais SMTP/região). Substituído pelo Gmail.
 
 ---
 
@@ -61,11 +67,11 @@ Repo → **Settings → Secrets and variables → Actions**.
 | `JIRA_EMAIL` | seu e-mail Atlassian |
 | `JIRA_API_TOKEN` | token do Jira |
 | `TEMPO_TOKEN` | token do Tempo |
-| `SMTP_HOST` | `smtp.office365.com` (ou `smtp.gmail.com`) |
+| `SMTP_HOST` | `smtp.gmail.com` |
 | `SMTP_PORT` | `587` |
-| `SMTP_USER` | conta de envio |
-| `SMTP_PASS` | senha de app |
-| `MAIL_FROM` | remetente (pode ser igual ao `SMTP_USER`) |
+| `SMTP_USER` | `relatorios@simconsultas.com.br` (conta de envio) |
+| `SMTP_PASS` | **Senha de App** do Gmail (16 chars, sem espaços) |
+| `MAIL_FROM` | remetente — igual ao `SMTP_USER` (`relatorios@simconsultas.com.br`) |
 | `MAIL_TO` | destinatários separados por vírgula |
 
 **Variables** (não-secretos):
@@ -90,6 +96,19 @@ Com as variáveis de ambiente definidas (`JIRA_EMAIL`, `JIRA_API_TOKEN`, `TEMPO_
 python refresh_all.py            # puxa tudo e regenera dashboard.html/index.html
 python send_email.py --dry-run   # gera email_preview.html (não envia)
 ```
+
+## Troubleshooting de e-mail (SMTP Gmail)
+O `send_email.py` loga `SMTP: conectando a <host>:<port> | user=... | from=... | senha=N chars`
+antes de autenticar — use isso para diagnosticar:
+- **`535 ... gsmtp` / `Username and Password not accepted`** → está no Gmail, mas a credencial não bate.
+  Confira: `SMTP_USER` exatamente igual à conta dona da senha; senha de app válida (2 etapas ativa);
+  senhas de app não bloqueadas pelo Admin do Workspace. O código já remove espaços da senha.
+- **`535 Authentication Credentials Invalid`** (sem `gsmtp`) → ainda está no **SES**; troque `SMTP_HOST` para `smtp.gmail.com`.
+- **Secret atualizado não fez efeito** → só vale para *runs novos*; dispare um **Run workflow** (não use "Re-run").
+- **Teste rápido da credencial** (local), sem gastar runs de CI:
+  ```powershell
+  python -c "import smtplib; s=smtplib.SMTP('smtp.gmail.com',587); s.ehlo(); s.starttls(); s.login('relatorios@simconsultas.com.br','SENHA_APP_SEM_ESPACOS'); print('OK login')"
+  ```
 
 ## Observações
 - **Período SDE/SDS**: só entram itens criados **ou** movimentados desde `DASH_PERIOD_START`. O SCUPOKR é mostrado completo.
