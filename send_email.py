@@ -158,11 +158,14 @@ if DRY:
     sys.exit(0)
 
 host = os.environ.get('SMTP_HOST'); port = int(os.environ.get('SMTP_PORT', '587'))
-user = os.environ.get('SMTP_USER'); pwd = os.environ.get('SMTP_PASS')
+user = os.environ.get('SMTP_USER')
+# Gmail mostra a senha de app em 4 grupos separados por espaco; o valor real nao tem espacos.
+pwd = (os.environ.get('SMTP_PASS') or '').replace(' ', '').strip()
 mail_from = os.environ.get('MAIL_FROM', user)
 mail_to = [x.strip() for x in os.environ.get('MAIL_TO', '').split(',') if x.strip()]
 if not (host and user and pwd and mail_to):
     print('ERRO: defina SMTP_HOST, SMTP_USER, SMTP_PASS e MAIL_TO.'); sys.exit(1)
+print(f'SMTP: conectando a {host}:{port} | user={user} | from={mail_from} | senha={len(pwd)} chars')
 
 msg = MIMEMultipart('alternative')
 msg['Subject'] = subject; msg['From'] = mail_from; msg['To'] = ', '.join(mail_to)
