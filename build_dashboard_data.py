@@ -153,6 +153,9 @@ for i in issues:
     i['logged'] = worklog_sec.get(i['key'], 0)
 
 # ---- epicos e progresso dos filhos ----
+# Epicos "guarda-chuva" de lancamento de horas (ex.: reunioes) NAO entram na Visao por
+# Iniciativa; as horas lancadas neles continuam aparecendo normalmente na secao de Horas.
+EPIC_EXCLUDE_INITIATIVE = {'SCUPOKR-223'}
 epics = [i for i in issues if i['typeNorm']=='Epico']
 children = collections.defaultdict(list)
 for i in issues:
@@ -160,6 +163,7 @@ for i in issues:
         children[i['parent']].append(i)
 epic_rows = []
 for e in sorted(epics, key=lambda x:int(x['key'].split('-')[1])):
+    if e['key'] in EPIC_EXCLUDE_INITIATIVE: continue
     ch = children.get(e['key'], [])
     cdone = sum(1 for c in ch if c['cat']=='done')
     cprog = sum(1 for c in ch if c['cat']=='indeterminate')
