@@ -155,7 +155,7 @@ for i in issues:
 # ---- epicos e progresso dos filhos ----
 # Epicos "guarda-chuva" de lancamento de horas (ex.: reunioes) NAO entram na Visao por
 # Iniciativa; as horas lancadas neles continuam aparecendo normalmente na secao de Horas.
-EPIC_EXCLUDE_INITIATIVE = {'SCUPOKR-223'}
+EPIC_EXCLUDE_INITIATIVE = {'SCUPOKR-223', 'SCUPOKR-233'}
 epics = [i for i in issues if i['typeNorm']=='Epico']
 children = collections.defaultdict(list)
 for i in issues:
